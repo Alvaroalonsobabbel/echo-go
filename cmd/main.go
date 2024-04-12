@@ -100,6 +100,7 @@ func createEndpoint(w http.ResponseWriter, r *http.Request) {
 	wrapper, err := checkBody(r.Body)
 	if err != nil {
 		json.NewEncoder(w).Encode(newError("bad_request", err.Error()))
+		return
 	}
 	defer r.Body.Close()
 

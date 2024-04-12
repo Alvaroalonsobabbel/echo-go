@@ -2,23 +2,19 @@ package validator
 
 import (
 	"fmt"
-	"path/filepath"
-	"runtime"
+	"log"
 	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 )
 
 func Validate(body string) error {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-	schemaPath := filepath.Join(basepath, "..", "schemas", "endpoint_schema.json")
-	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
+	schemaLoader := gojsonschema.NewReferenceLoader("file://internal/validator/endpoint_schema.json")
 	documentLoader := gojsonschema.NewStringLoader(body)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return fmt.Errorf("error validating schema: %s", err)
+		log.Fatalf("error validating schema: %v", err)
 	}
 
 	if result.Valid() {
