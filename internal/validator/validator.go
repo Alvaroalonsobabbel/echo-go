@@ -3,13 +3,18 @@ package validator
 import (
 	"fmt"
 	"log"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 )
 
 func Validate(body string) error {
-	schemaLoader := gojsonschema.NewReferenceLoader("file://internal/validator/endpoint_schema.json")
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	schemaPath := filepath.Join(basepath, "..", "validator", "endpoint_schema.json")
+	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
 	documentLoader := gojsonschema.NewStringLoader(body)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
