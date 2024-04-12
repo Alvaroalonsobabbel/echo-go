@@ -6,27 +6,27 @@ import (
 	"github.com/Alvaroalonsobabbel/echo-go/internal/types"
 )
 
-type MemoryStorage struct {
+type memoryStorage struct {
 	types.EndpointsWrapper
 }
 
-func NewMemoryStorage() *MemoryStorage {
-	return &MemoryStorage{
+func NewMemoryStorage() *memoryStorage {
+	return &memoryStorage{
 		types.EndpointsWrapper{
 			Data: []types.Endpoint{},
 		},
 	}
 }
 
-func (m *MemoryStorage) Read() *types.EndpointsWrapper {
+func (m *memoryStorage) Read() *types.EndpointsWrapper {
 	return &m.EndpointsWrapper
 }
 
-func (m *MemoryStorage) Create(endpoint types.Endpoint) {
+func (m *memoryStorage) Create(endpoint types.Endpoint) {
 	m.Data = append(m.Data, endpoint)
 }
 
-func (m *MemoryStorage) Update(id int, endpoint types.Endpoint) bool {
+func (m *memoryStorage) Update(id int, endpoint types.Endpoint) bool {
 	for i, e := range m.Data {
 		if e.ID == id {
 			m.Data = append(m.Data[:i], m.Data[i+1:]...)
@@ -38,7 +38,7 @@ func (m *MemoryStorage) Update(id int, endpoint types.Endpoint) bool {
 	return false
 }
 
-func (m *MemoryStorage) Delete(id int) bool {
+func (m *memoryStorage) Delete(id int) bool {
 	for i, e := range m.Data {
 		if e.ID == id {
 			m.Data = slices.Delete(m.Data, i, i+1)
@@ -48,7 +48,7 @@ func (m *MemoryStorage) Delete(id int) bool {
 	return false
 }
 
-func (m *MemoryStorage) Find(method string, path string) (*types.Endpoint, bool) {
+func (m *memoryStorage) Find(method string, path string) (*types.Endpoint, bool) {
 	for _, e := range m.Data {
 		if e.Attributes.Verb == method && e.Attributes.Path == path {
 			return &e, true
