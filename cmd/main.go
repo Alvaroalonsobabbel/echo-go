@@ -99,6 +99,7 @@ func handleAll(w http.ResponseWriter, r *http.Request) {
 func createEndpoint(w http.ResponseWriter, r *http.Request) {
 	wrapper, err := checkBody(r.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(newError("bad_request", err.Error()))
 		return
 	}
@@ -121,6 +122,7 @@ func createEndpoint(w http.ResponseWriter, r *http.Request) {
 func updateEndpoint(w http.ResponseWriter, r *http.Request) {
 	wrapper, err := checkBody(r.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(newError("bad_request", err.Error()))
 		return
 	}
