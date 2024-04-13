@@ -104,11 +104,16 @@ func createEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	id := rand.Intn(10000) // yeah, I know...
+	id := generateID()
 	wrapper.Data.ID = id
 	data.Create(wrapper.Data)
 
-	w.Header().Set("Location", r.Host+wrapper.Data.Attributes.Path)
+	scheme := "http://"
+	if r.TLS != nil {
+		scheme = "https://"
+	}
+
+	w.Header().Set("Location", scheme+r.Host+wrapper.Data.Attributes.Path)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(wrapper)
 }
@@ -143,14 +148,6 @@ func deleteEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func newError(code string, detail string) map[string][]types.ErrorResponse {
-	return map[string][]types.ErrorResponse{
-		"errors": {
-			{Code: code, Detail: detail},
-		},
-	}
-}
-
 func checkBody(requestBody io.Reader) (types.SingleEndpointWrapper, error) {
 	var wrapper types.SingleEndpointWrapper
 	body, err := io.ReadAll(requestBody)
@@ -169,4 +166,34 @@ func checkBody(requestBody io.Reader) (types.SingleEndpointWrapper, error) {
 	}
 
 	return wrapper, nil
+}
+
+func newError(code string, detail string) types.ErrorResponse {
+	return types.ErrorResponse{
+		Errors: []types.ErrorDetail{
+			{Code: code, Detail: detail},
+		},
+	}
+}
+
+func generateID() int {
+	var id int
+	var i int
+
+IDGenerator:
+	for i = 0; i < 9999; i++ {
+		id = rand.Intn(10000)
+		if id == 0 {
+			continue
+		} else {
+			for _, d := range data.Read().Data {
+				if d.ID == id {
+					continue IDGenerator
+				}
+			}
+		}
+		return id
+	}
+	log.Fatalln("Not enough IDs")
+	return 0
 }

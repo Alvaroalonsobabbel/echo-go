@@ -3,18 +3,65 @@ package validator
 import (
 	"fmt"
 	"log"
-	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/xeipuuv/gojsonschema"
 )
 
+const schema = `{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "endpoints"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "verb": {
+              "type": "string",
+              "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^\\/.*"
+            },
+            "response": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "minimum": 100,
+                  "maximum": 599
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "body": {
+                  "type": "string"
+                }
+              },
+              "required": ["code"]
+            }
+          },
+          "required": ["verb", "path", "response"]
+        }
+      },
+      "required": ["type", "attributes"]
+    }
+  },
+  "required": ["data"]
+}`
+
 func Validate(body string) error {
-	_, b, _, _ := runtime.Caller(0)
-	basepath := filepath.Dir(b)
-	schemaPath := filepath.Join(basepath, "..", "validator", "endpoint_schema.json")
-	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
+	schemaLoader := gojsonschema.NewStringLoader(schema)
 	documentLoader := gojsonschema.NewStringLoader(body)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)

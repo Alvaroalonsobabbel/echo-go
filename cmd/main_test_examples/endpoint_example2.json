@@ -1,0 +1,15 @@
+{
+  "data": {
+      "type": "endpoints",
+      "attributes": {
+          "verb": "POST",
+          "path": "/test",
+          "response": {
+              "code": 404,
+              "headers": {
+                "x-some-header": "header"
+              }
+          }
+      }
+  }
+}

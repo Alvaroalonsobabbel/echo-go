@@ -25,6 +25,10 @@ type Endpoint struct {
 }
 
 type ErrorResponse struct {
+	Errors []ErrorDetail `json:"errors"`
+}
+
+type ErrorDetail struct {
 	Code   string `json:"code"`
 	Detail string `json:"detail"`
 }

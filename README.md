@@ -10,7 +10,7 @@ This application was built using Go and the endpoints use [JSON:API v1.0](https:
 
 ## Run locally
 
-If you're using macOS you can just download the app binary [here](https://github.com/Alvaroalonsobabbel/echo-go/releases/latest/download/echo-go) and then start the server with `./echo-go`
+If you're using macOS you can just download the app binary [here](https://github.com/Alvaroalonsobabbel/echo-go/releases/latest/download/echo-go) and then give execution access to the file with `chmod +x echo-go` and start the server with `./echo-go`. You might also have to allow the app to run in the System Settings.
 
 Otherwise you'll have to:
 
