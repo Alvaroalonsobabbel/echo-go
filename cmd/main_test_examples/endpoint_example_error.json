@@ -1,0 +1,14 @@
+{
+  "data": {
+      "type": "endpoints",
+      "attributes": {
+          "verb": "GETS",
+          "path": "/greeting",
+          "response": {
+              "code": 200,
+              "headers": {},
+              "body": "\"{ \"message\": \"Hello, world\" }\""
+          }
+      }
+  }
+}

@@ -77,7 +77,7 @@ func TestServer(t *testing.T) {
 			t.Errorf("Expected error code 'not_found', got: %v", errorResponse.Errors[0].Code)
 		}
 		if errorResponse.Errors[0].Detail != expectedDetail {
-			t.Errorf("Expected error code 'not_found', got: %v", errorResponse.Errors[0].Detail)
+			t.Errorf("Expected detail %v, got: %v", expectedDetail, errorResponse.Errors[0].Detail)
 		}
 	})
 
@@ -348,5 +348,32 @@ func TestServer(t *testing.T) {
 		}
 	})
 
-	// validate params in post
+	t.Run("POST /endpoint with incorrect verb", func(t *testing.T) {
+		endpointFile, err := os.ReadFile("main_test_examples/endpoint_example_error.json")
+		if err != nil {
+			t.Fatalf("Failed to open file: %v", err)
+		}
+		resp, err := http.Post(
+			baseURL+"/endpoints", "application/json", bytes.NewBuffer(endpointFile))
+		if err != nil {
+			t.Fatalf("Failed to make request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("Expected status Bad Request; got %v", resp.Status)
+		}
+
+		body, _ := io.ReadAll(resp.Body)
+		var errorResponse types.ErrorResponse
+		expectedCode := "bad_request"
+		json.Unmarshal(body, &errorResponse)
+
+		if errorResponse.Errors[0].Code != expectedCode {
+			t.Errorf("Expected error code 'bad_request', got: %v", errorResponse.Errors[0].Code)
+		}
+		if errorResponse.Errors[0].Detail == "" {
+			t.Errorf("Expected detail not to be empty")
+		}
+	})
 }
