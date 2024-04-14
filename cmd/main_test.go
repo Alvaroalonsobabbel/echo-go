@@ -213,8 +213,8 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("calling example 2", func(t *testing.T) {
-		var emptyBody []byte
-		resp, err := http.Post(baseURL+"/test", "application/json", bytes.NewBuffer(emptyBody))
+		var emptyBody = "{[]}"
+		resp, err := http.Post(baseURL+"/test", "application/json", bytes.NewBuffer([]byte(emptyBody)))
 		if err != nil {
 			t.Fatalf("Failed to make request: %v", err)
 		}
@@ -241,7 +241,6 @@ func TestServer(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to open file: %v", err)
 		}
-		fmt.Println(exmaple2id)
 		id := strconv.Itoa(exmaple2id)
 		req, err := http.NewRequest(http.MethodPatch, baseURL+"/endpoints/"+id, bytes.NewBuffer(endpointFile))
 		if err != nil {
@@ -259,7 +258,6 @@ func TestServer(t *testing.T) {
 
 		body, _ := io.ReadAll(resp.Body)
 		var response types.SingleEndpointWrapper
-		exmaple2id = response.Data.ID
 		expectedVerb := "GET"
 		expectedPath := "/test"
 		expectedCode := 404
@@ -306,6 +304,49 @@ func TestServer(t *testing.T) {
 		}
 	})
 
-	// delete endpoints
+	t.Run("DELETE /endpoint/{id} example 2", func(t *testing.T) {
+		id := strconv.Itoa(exmaple2id)
+		fmt.Println(id)
+		req, err := http.NewRequest(http.MethodDelete, baseURL+"/endpoints/"+id, bytes.NewBuffer([]byte{}))
+		if err != nil {
+			t.Fatalf("Failed to prepare the request: %v", err)
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			t.Fatalf("Failed to make request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusNoContent {
+			t.Errorf("Expected status No Content; got %v", resp.Status)
+		}
+
+		body, _ := io.ReadAll(resp.Body)
+
+		if body == nil {
+			t.Errorf("Expected body to be empty, got: %v", body)
+		}
+	})
+
+	t.Run("GET /endpoints to verify item has been deleted", func(t *testing.T) {
+		resp, err := http.Get(baseURL + "/endpoints")
+		if err != nil {
+			t.Fatalf("Failed to make request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status OK; got %v", resp.Status)
+		}
+
+		body, _ := io.ReadAll(resp.Body)
+		var response types.EndpointsWrapper
+		json.Unmarshal(body, &response)
+
+		if len(response.Data) != 1 {
+			t.Errorf("Expected Data array to have 2 items, got: %v", response.Data)
+		}
+	})
+
 	// validate params in post
 }

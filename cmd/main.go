@@ -84,14 +84,11 @@ func handleAll(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(k, v)
 		}
 		w.WriteHeader(endpoint.Attributes.Response.Code)
-		if endpoint.Attributes.Response.Body != nil {
-			var decodedBody string
-			if err := json.Unmarshal([]byte(endpoint.Attributes.Response.Body), &decodedBody); err != nil {
-				log.Println(err)
-			}
-			trimmQuotes := decodedBody[1 : len(decodedBody)-1]
-			w.Write([]byte(trimmQuotes))
-		}
+		var decodedBody string
+		json.Unmarshal([]byte(endpoint.Attributes.Response.Body), &decodedBody)
+		trimmBeginning := strings.TrimPrefix(decodedBody, "\"")
+		trimmEnd := strings.TrimSuffix(trimmBeginning, "\"")
+		w.Write([]byte(trimmEnd))
 	} else {
 		detail := fmt.Sprintf("Requested page `%s`, `%s` does not exist", r.Method, r.RequestURI)
 		w.WriteHeader(http.StatusNotFound)
