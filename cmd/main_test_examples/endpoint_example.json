@@ -7,7 +7,7 @@
           "response": {
               "code": 200,
               "headers": {},
-              "body": "{\"message\": \"Hello, world\"}"
+              "body": "\"{ \"message\": \"Hello, world\" }\""
           }
       }
   }

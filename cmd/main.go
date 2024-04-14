@@ -83,12 +83,15 @@ func handleAll(w http.ResponseWriter, r *http.Request) {
 		for k, v := range endpoint.Attributes.Response.Headers {
 			w.Header().Add(k, v)
 		}
-		var decodedBody string
-		if err := json.Unmarshal([]byte(endpoint.Attributes.Response.Body), &decodedBody); err != nil {
-			log.Println(err)
-		}
 		w.WriteHeader(endpoint.Attributes.Response.Code)
-		w.Write([]byte(decodedBody))
+		if endpoint.Attributes.Response.Body != nil {
+			var decodedBody string
+			if err := json.Unmarshal([]byte(endpoint.Attributes.Response.Body), &decodedBody); err != nil {
+				log.Println(err)
+			}
+			trimmQuotes := decodedBody[1 : len(decodedBody)-1]
+			w.Write([]byte(trimmQuotes))
+		}
 	} else {
 		detail := fmt.Sprintf("Requested page `%s`, `%s` does not exist", r.Method, r.RequestURI)
 		w.WriteHeader(http.StatusNotFound)
@@ -179,12 +182,10 @@ func newError(code string, detail string) types.ErrorResponse {
 }
 
 func generateID() int {
-	var id int
-	var i int
-
+	const totalIDs = 10000
 IDGenerator:
-	for i = 0; i < 9999; i++ {
-		id = rand.Intn(10000)
+	for i := 0; i < totalIDs; i++ {
+		id := rand.Intn(totalIDs)
 		if id == 0 {
 			continue
 		} else {
