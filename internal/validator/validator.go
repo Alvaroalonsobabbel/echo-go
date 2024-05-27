@@ -28,7 +28,7 @@ const schema = `{
             },
             "path": {
               "type": "string",
-              "pattern": "^\\/.*"
+              "pattern": "^/([a-zA-Z0-9\\-\\._~]+)*$"
             },
             "response": {
               "type": "object",
